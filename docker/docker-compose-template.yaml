@@ -149,8 +149,11 @@ services:
       - default
 
   # Frontend web application.
+  # NOTE: Built from source to include SSR internal URL fix (DIFY_INTERNAL_API_URL)
   web:
-    image: langgenius/dify-web:1.11.4
+    build:
+      context: ../web
+      dockerfile: Dockerfile
     restart: always
     labels:
       - "traefik.enable=true"
