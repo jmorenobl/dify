@@ -34,6 +34,10 @@ WORKDIR /app/web
 COPY --from=packages /app/web/ .
 COPY . .
 
+# Accept internal API URL from build args for SSR Docker communication
+ARG DIFY_INTERNAL_API_URL
+ENV DIFY_INTERNAL_API_URL=${DIFY_INTERNAL_API_URL}
+
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm build:docker
 

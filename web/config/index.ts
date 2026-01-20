@@ -54,24 +54,37 @@ const getStringConfig = (
 }
 
 // SSR-specific internal API URL for Docker inter-service communication
-// When running on server (SSR), use DIFY_INTERNAL_API_URL if set, otherwise fall back to public URL
+// Using getter to ensure env var is read at RUNTIME, not at build time
 const isServer = typeof window === 'undefined'
-const INTERNAL_API_URL = process.env.DIFY_INTERNAL_API_URL
 
-export const API_PREFIX = isServer && INTERNAL_API_URL
-  ? `${INTERNAL_API_URL}/console/api`
-  : getStringConfig(
+const getApiPrefix = (): string => {
+  // Read env var at runtime, not at module initialization
+  const internalApiUrl = process.env.DIFY_INTERNAL_API_URL
+  if (isServer && internalApiUrl) {
+    return `${internalApiUrl}/console/api`
+  }
+  return getStringConfig(
     process.env.NEXT_PUBLIC_API_PREFIX,
     DatasetAttr.DATA_API_PREFIX,
     'http://localhost:5001/console/api',
   )
-export const PUBLIC_API_PREFIX = isServer && INTERNAL_API_URL
-  ? `${INTERNAL_API_URL}/api`
-  : getStringConfig(
+}
+
+const getPublicApiPrefix = (): string => {
+  const internalApiUrl = process.env.DIFY_INTERNAL_API_URL
+  if (isServer && internalApiUrl) {
+    return `${internalApiUrl}/api`
+  }
+  return getStringConfig(
     process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
     DatasetAttr.DATA_PUBLIC_API_PREFIX,
     'http://localhost:5001/api',
   )
+}
+
+// Export as getters that are called at runtime
+export const API_PREFIX = getApiPrefix()
+export const PUBLIC_API_PREFIX = getPublicApiPrefix()
 export const MARKETPLACE_API_PREFIX = getStringConfig(
   process.env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX,
   DatasetAttr.DATA_MARKETPLACE_API_PREFIX,

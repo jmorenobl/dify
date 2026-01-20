@@ -154,6 +154,9 @@ services:
     build:
       context: ../web
       dockerfile: Dockerfile
+      args:
+        # Pass internal API URL at build time so Next.js can compile with it
+        DIFY_INTERNAL_API_URL: ${DIFY_INTERNAL_API_URL:-http://api:5001}
     restart: always
     labels:
       - "traefik.enable=true"
