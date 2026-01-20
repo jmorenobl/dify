@@ -65,7 +65,8 @@ services:
         condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
-      - ./volumes/app/storage:/app/api/storage
+      # Mount the storage directory to the container, for storing user files.
+      - dify_app_storage:/app/api/storage
     networks:
       - ssrf_proxy_network
       - default
@@ -105,7 +106,8 @@ services:
         condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
-      - ./volumes/app/storage:/app/api/storage
+      # Mount the storage directory to the container, for storing user files.
+      - dify_app_storage:/app/api/storage
     networks:
       - ssrf_proxy_network
       - default
@@ -270,7 +272,7 @@ services:
       PIP_MIRROR_URL: ${PIP_MIRROR_URL:-}
     volumes:
       - dify_sandbox_dependencies:/dependencies
-      - dify_sandbox_conf:/conf
+      - ./volumes/sandbox/conf:/conf
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8194/health" ]
     networks:
@@ -366,8 +368,8 @@ services:
     image: ubuntu/squid:latest
     restart: always
     volumes:
-      - dify_ssrf_proxy_squid_conf:/etc/squid/squid.conf.template
-      - dify_ssrf_proxy_entrypoint:/docker-entrypoint-mount.sh
+      - ./ssrf_proxy/squid.conf.template:/etc/squid/squid.conf.template
+      - ./ssrf_proxy/docker-entrypoint.sh:/docker-entrypoint-mount.sh
     entrypoint: [ "sh", "-c", "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh" ]
     environment:
       # pls clearly modify the squid env vars to fit your network environment.
@@ -869,3 +871,12 @@ networks:
 volumes:
   oradata:
   dify_es01_data:
+  dify_db_data:
+  dify_mysql_data:
+  dify_redis_data:
+  dify_plugin_daemon_data:
+  dify_weaviate_data:
+  dify_sandbox_dependencies:
+  dify_app_storage:
+
+
