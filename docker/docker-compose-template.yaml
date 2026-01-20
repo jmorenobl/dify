@@ -225,6 +225,19 @@ services:
       timeout: 3s
       retries: 30
 
+  # Init DB service to ensure dify_plugin exists
+  init_db:
+    image: postgres:15-alpine
+    restart: "no"
+    command: >
+      sh -c ' until pg_isready -h db_postgres -U ${DB_USERNAME:-postgres}; do sleep 1; done; psql -h db_postgres -U ${DB_USERNAME:-postgres} -d postgres -c "CREATE DATABASE dify_plugin" || true '
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:-difyai123456}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+
   # The redis cache.
   redis:
     image: redis:6-alpine
@@ -235,7 +248,7 @@ services:
       # Mount the redis data directory to the container.
       - dify_redis_data:/data
     # Set the redis password when startup redis server.
-    command: redis-server --requirepass ${REDIS_PASSWORD:-difyai123456} --stop-writes-on-bgsave-error no
+    command: redis-server --requirepass ${REDIS_PASSWORD:-difyai123456} --stop-writes-on-bgsave-error no --dir /data
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-difyai123456} ping | grep -q PONG" ]
 
