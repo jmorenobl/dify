@@ -864,6 +864,8 @@ services:
       ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
     networks:
+      - ssrf_proxy_network
+      - default
       - dokploy-network
 
   # The PostgreSQL database.
@@ -1029,6 +1031,8 @@ services:
         condition: service_healthy
         required: false
     networks:
+      - ssrf_proxy_network
+      - default
       - dokploy-network
 
   # ssrf_proxy server
