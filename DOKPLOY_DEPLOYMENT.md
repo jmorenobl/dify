@@ -323,12 +323,18 @@ APP_WEB_URL=https://tu-dominio.com
 RESPECT_XFORWARD_HEADERS_ENABLED=true
 
 # ========================================
-# ELIMINAR O COMENTAR
-# Ya no son necesarias con Dokploy/Traefik
+# SSL Y SEGURIDAD (REQUERIDO PARA HTTPS)
 # ========================================
-# EXPOSE_NGINX_PORT=80
-# EXPOSE_NGINX_SSL_PORT=443
-# NGINX_HTTPS_ENABLED=false
+# Estos valores son CRÍTICOS para evitar errores 401 en login
+WEB_API_CORS_ALLOW_ORIGINS=https://tu-dominio.com
+CONSOLE_CORS_ALLOW_ORIGINS=https://tu-dominio.com
+
+COOKIE_DOMAIN=.tu-dominio.com
+NEXT_PUBLIC_COOKIE_DOMAIN=.tu-dominio.com
+# (Nota el punto inicial en COOKIE_DOMAIN para soportar subdominios)
+
+# Referencia: Ver archivo docker/.env.dokploy para un template completo
+
 ```
 
 ### 6.2 Variables de Base de Datos y Redis
