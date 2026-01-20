@@ -712,8 +712,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=dokploy-network"
       - "traefik.http.routers.dify-api.rule=Host(`${DIFY_DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/v1`) || PathPrefix(`/console/api`) || PathPrefix(`/files`) || PathPrefix(`/mcp`) || PathPrefix(`/triggers`))"
-      - "traefik.http.routers.dify-api.entrypoints=websecure"
-      - "traefik.http.routers.dify-api.tls=true"
+      - "traefik.http.routers.dify-api.entrypoints=web"
       - "traefik.http.routers.dify-api.priority=100"
       - "traefik.http.services.dify-api.loadbalancer.server.port=5001"
       - "traefik.http.middlewares.dify-buffering.buffering.maxRequestBodyBytes=104857600"
@@ -756,8 +755,6 @@ services:
       - ssrf_proxy_network
       - default
       - dokploy-network
-    extra_hosts:
-      - "${DIFY_DOMAIN}:host-gateway"
 
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
@@ -837,8 +834,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=dokploy-network"
       - "traefik.http.routers.dify-web.rule=Host(`${DIFY_DOMAIN}`)"
-      - "traefik.http.routers.dify-web.entrypoints=websecure"
-      - "traefik.http.routers.dify-web.tls=true"
+      - "traefik.http.routers.dify-web.entrypoints=web"
       - "traefik.http.routers.dify-web.priority=1"
       - "traefik.http.services.dify-web.loadbalancer.server.port=3000"
     environment:
@@ -869,21 +865,10 @@ services:
       - ssrf_proxy_network
       - default
       - dokploy-network
-    user: root
-    command:
-      - /bin/sh
-      - -c
-      - |
-        TRAEFIK_IP=$(ping -c 1 dokploy-traefik | head -1 | awk -F '[()]' '{print $2}')
-        echo "$TRAEFIK_IP ${DIFY_DOMAIN}" >> /etc/hosts
-        /entrypoint.sh
 
   # The PostgreSQL database.
   db_postgres:
-
     image: postgres:15-alpine
-    profiles:
-      - postgresql
     restart: always
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -971,10 +956,10 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=dokploy-network"
       - "traefik.http.routers.dify-plugin.rule=Host(`${DIFY_DOMAIN}`) && PathPrefix(`/e/`)"
-      - "traefik.http.routers.dify-plugin.entrypoints=websecure"
-      - "traefik.http.routers.dify-plugin.tls=true"
+      - "traefik.http.routers.dify-plugin.entrypoints=web"
       - "traefik.http.routers.dify-plugin.priority=100"
       - "traefik.http.services.dify-plugin.loadbalancer.server.port=5002"
+
     environment:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
