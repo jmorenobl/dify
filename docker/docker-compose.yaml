@@ -850,6 +850,8 @@ services:
       - "traefik.http.routers.dify-web.priority=1"
       - "traefik.http.services.dify-web.loadbalancer.server.port=3000"
     environment:
+      # Bind to all interfaces so Traefik can reach us from dokploy-network
+      HOSTNAME: 0.0.0.0
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
       APP_API_URL: ${APP_API_URL:-}
       AMPLITUDE_API_KEY: ${AMPLITUDE_API_KEY:-}
