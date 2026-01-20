@@ -58,10 +58,10 @@ const getStringConfig = (
 const isServer = typeof window === 'undefined'
 
 const getApiPrefix = (): string => {
-  // DEBUG: Hardcoded internal URL to verify SSR connectivity
-  if (isServer) {
-    console.log('[SSR DEBUG] Using hardcoded http://api:5001/console/api')
-    return 'http://api:5001/console/api'
+  // Read env var at runtime, not at module initialization
+  const internalApiUrl = process.env.DIFY_INTERNAL_API_URL
+  if (isServer && internalApiUrl) {
+    return `${internalApiUrl}/console/api`
   }
   return getStringConfig(
     process.env.NEXT_PUBLIC_API_PREFIX,
@@ -71,8 +71,9 @@ const getApiPrefix = (): string => {
 }
 
 const getPublicApiPrefix = (): string => {
-  if (isServer) {
-    return 'http://api:5001/api'
+  const internalApiUrl = process.env.DIFY_INTERNAL_API_URL
+  if (isServer && internalApiUrl) {
+    return `${internalApiUrl}/api`
   }
   return getStringConfig(
     process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
