@@ -756,6 +756,8 @@ services:
       - ssrf_proxy_network
       - default
       - dokploy-network
+    extra_hosts:
+      - "${DIFY_DOMAIN}:host-gateway"
 
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
@@ -867,9 +869,12 @@ services:
       - ssrf_proxy_network
       - default
       - dokploy-network
+    extra_hosts:
+      - "${DIFY_DOMAIN}:host-gateway"
 
   # The PostgreSQL database.
   db_postgres:
+
     image: postgres:15-alpine
     profiles:
       - postgresql
