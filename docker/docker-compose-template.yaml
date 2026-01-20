@@ -199,7 +199,7 @@ services:
                -c 'statement_timeout=${POSTGRES_STATEMENT_TIMEOUT:-0}'
                -c 'idle_in_transaction_session_timeout=${POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT:-0}'
     volumes:
-      - ./volumes/db/data:/var/lib/postgresql/data
+      - dify_db_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-h", "db_postgres", "-U", "${DB_USERNAME:-postgres}", "-d", "${DB_DATABASE:-dify}" ]
       interval: 1s
@@ -218,7 +218,7 @@ services:
     command: >
       --max_connections=1000 --innodb_buffer_pool_size=${MYSQL_INNODB_BUFFER_POOL_SIZE:-512M} --innodb_log_file_size=${MYSQL_INNODB_LOG_FILE_SIZE:-128M} --innodb_flush_log_at_trx_commit=${MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT:-2}
     volumes:
-      - ${MYSQL_HOST_VOLUME:-./volumes/mysql/data}:/var/lib/mysql
+      - dify_mysql_data:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-u", "root", "-p${DB_PASSWORD:-difyai123456}" ]
       interval: 1s
@@ -233,7 +233,7 @@ services:
       REDISCLI_AUTH: ${REDIS_PASSWORD:-difyai123456}
     volumes:
       # Mount the redis data directory to the container.
-      - ./volumes/redis/data:/data
+      - dify_redis_data:/data
     # Set the redis password when startup redis server.
     command: redis-server --requirepass ${REDIS_PASSWORD:-difyai123456} --stop-writes-on-bgsave-error no
     healthcheck:
@@ -256,8 +256,8 @@ services:
       SANDBOX_PORT: ${SANDBOX_PORT:-8194}
       PIP_MIRROR_URL: ${PIP_MIRROR_URL:-}
     volumes:
-      - ./volumes/sandbox/dependencies:/dependencies
-      - ./volumes/sandbox/conf:/conf
+      - dify_sandbox_dependencies:/dependencies
+      - dify_sandbox_conf:/conf
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8194/health" ]
     networks:
@@ -327,7 +327,7 @@ services:
     ports:
       - "${EXPOSE_PLUGIN_DEBUGGING_PORT:-5003}:${PLUGIN_DEBUGGING_PORT:-5003}"
     volumes:
-      - ./volumes/plugin_daemon:/app/storage
+      - dify_plugin_daemon_data:/app/storage
     depends_on:
       db_postgres:
         condition: service_healthy
@@ -353,19 +353,21 @@ services:
     image: ubuntu/squid:latest
     restart: always
     volumes:
-      - ./ssrf_proxy/squid.conf.template:/etc/squid/squid.conf.template
-      - ./ssrf_proxy/docker-entrypoint.sh:/docker-entrypoint-mount.sh
+      - dify_ssrf_proxy_squid_conf:/etc/squid/squid.conf.template
+      - dify_ssrf_proxy_entrypoint:/docker-entrypoint-mount.sh
     entrypoint: [ "sh", "-c", "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh" ]
     environment:
       # pls clearly modify the squid env vars to fit your network environment.
-      HTTP_PORT: ${SSRF_HTTP_PORT:-3128}
-      COREDUMP_DIR: ${SSRF_COREDUMP_DIR:-/var/spool/squid}
-      REVERSE_PROXY_PORT: ${SSRF_REVERSE_PROXY_PORT:-8194}
-      SANDBOX_HOST: ${SSRF_SANDBOX_HOST:-sandbox}
-      SANDBOX_PORT: ${SANDBOX_PORT:-8194}
+      HTTP_PORT: ${SSRF_PROXY_HTTP_PORT:-3128}
+      COREDUMP_DIR: ${SSRF_PROXY_COREDUMP_DIR:-/var/spool/squid}
+      REVERSE_PROXY_PORT: ${SSRF_PROXY_REVERSE_PROXY_PORT:-8194}
+      SANDBOX_HOST: ${SSRF_PROXY_SANDBOX_HOST:-sandbox}
+      SANDBOX_PORT: ${SSRF_PROXY_SANDBOX_PORT:-8194}
     networks:
       - ssrf_proxy_network
       - default
+    extra_hosts:
+      - "${DIFY_DOMAIN}:host-gateway"
 
   # The Weaviate vector store.
   weaviate:
@@ -375,7 +377,7 @@ services:
     restart: always
     volumes:
       # Mount the Weaviate data directory to the con tainer.
-      - ./volumes/weaviate:/var/lib/weaviate
+      - dify_weaviate_data:/var/lib/weaviate
     environment:
       # The Weaviate configurations
       # You can refer to the [Weaviate](https://weaviate.io/developers/weaviate/config-refs/env-vars) documentation for more information.
