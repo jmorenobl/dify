@@ -184,8 +184,14 @@ services:
       - ssrf_proxy_network
       - default
       - dokploy-network
-    extra_hosts:
-      - "${DIFY_DOMAIN}:host-gateway"
+    user: root
+    command:
+      - /bin/sh
+      - -c
+      - |
+        TRAEFIK_IP=$(ping -c 1 dokploy-traefik | head -1 | awk -F '[()]' '{print $2}')
+        echo "$TRAEFIK_IP ${DIFY_DOMAIN}" >> /etc/hosts
+        /entrypoint.sh
 
   # The PostgreSQL database.
   db_postgres:
