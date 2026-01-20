@@ -748,6 +748,11 @@ services:
         required: false
       redis:
         condition: service_started
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5001/console/api/ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
     volumes:
       # Mount the storage directory to the container, for storing user files.
       # Mount the storage directory to the container, for storing user files.
@@ -863,6 +868,11 @@ services:
       ENABLE_WEBSITE_JINAREADER: ${ENABLE_WEBSITE_JINAREADER:-true}
       ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
     networks:
       - ssrf_proxy_network
       - default
