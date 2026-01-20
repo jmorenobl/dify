@@ -29,7 +29,7 @@ services:
       - "traefik.http.routers.dify-api.rule=Host(`${DIFY_DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/v1`) || PathPrefix(`/console/api`) || PathPrefix(`/files`) || PathPrefix(`/mcp`) || PathPrefix(`/triggers`))"
       - "traefik.http.routers.dify-api.entrypoints=web"
       - "traefik.http.routers.dify-api.priority=100"
-      - "traefik.http.services.dify-api.loadbalancer.server.port=80"
+      - "traefik.http.services.dify-api.loadbalancer.server.port=5001"
       - "traefik.http.middlewares.dify-buffering.buffering.maxRequestBodyBytes=104857600"
       - "traefik.http.middlewares.dify-buffering.buffering.memRequestBodyBytes=2097152"
       - "traefik.http.routers.dify-api.middlewares=dify-buffering"
@@ -38,7 +38,6 @@ services:
       <<: *shared-api-worker-env
       # Startup mode, 'api' starts the API server.
       MODE: api
-      DIFY_PORT: 80
       SENTRY_DSN: ${API_SENTRY_DSN:-}
       SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
       SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
@@ -65,7 +64,7 @@ services:
       redis:
         condition: service_started
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:80/console/api/ping" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:5001/console/api/ping" ]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -74,11 +73,9 @@ services:
       # Mount the storage directory to the container, for storing user files.
       - dify_app_storage:/app/api/storage
     networks:
-      ssrf_proxy_network:
-      default:
-      dokploy-network:
-        aliases:
-          - ${DIFY_DOMAIN}
+      - ssrf_proxy_network
+      - default
+      - dokploy-network
 
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
@@ -165,6 +162,8 @@ services:
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
       APP_API_URL: ${APP_API_URL:-}
+      # Internal API URL for SSR - uses Docker service names for internal communication
+      DIFY_INTERNAL_API_URL: ${DIFY_INTERNAL_API_URL:-http://api:5001}
       AMPLITUDE_API_KEY: ${AMPLITUDE_API_KEY:-}
       NEXT_PUBLIC_COOKIE_DOMAIN: ${NEXT_PUBLIC_COOKIE_DOMAIN:-}
       SENTRY_DSN: ${WEB_SENTRY_DSN:-}

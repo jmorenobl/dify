@@ -53,16 +53,25 @@ const getStringConfig = (
   return defaultValue
 }
 
-export const API_PREFIX = getStringConfig(
-  process.env.NEXT_PUBLIC_API_PREFIX,
-  DatasetAttr.DATA_API_PREFIX,
-  'http://localhost:5001/console/api',
-)
-export const PUBLIC_API_PREFIX = getStringConfig(
-  process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
-  DatasetAttr.DATA_PUBLIC_API_PREFIX,
-  'http://localhost:5001/api',
-)
+// SSR-specific internal API URL for Docker inter-service communication
+// When running on server (SSR), use DIFY_INTERNAL_API_URL if set, otherwise fall back to public URL
+const isServer = typeof window === 'undefined'
+const INTERNAL_API_URL = process.env.DIFY_INTERNAL_API_URL
+
+export const API_PREFIX = isServer && INTERNAL_API_URL
+  ? `${INTERNAL_API_URL}/console/api`
+  : getStringConfig(
+    process.env.NEXT_PUBLIC_API_PREFIX,
+    DatasetAttr.DATA_API_PREFIX,
+    'http://localhost:5001/console/api',
+  )
+export const PUBLIC_API_PREFIX = isServer && INTERNAL_API_URL
+  ? `${INTERNAL_API_URL}/api`
+  : getStringConfig(
+    process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
+    DatasetAttr.DATA_PUBLIC_API_PREFIX,
+    'http://localhost:5001/api',
+  )
 export const MARKETPLACE_API_PREFIX = getStringConfig(
   process.env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX,
   DatasetAttr.DATA_MARKETPLACE_API_PREFIX,
