@@ -16,7 +16,7 @@ services:
         chown -R 1001:1001 /app/api/storage && touch "$${FLAG_FILE}"
         echo "Permissions initialized. Exiting."
     volumes:
-      - ./volumes/app/storage:/app/api/storage
+      - dify_app_storage:/app/api/storage
     restart: "no"
 
   # API service

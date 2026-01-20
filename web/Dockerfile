@@ -34,10 +34,6 @@ WORKDIR /app/web
 COPY --from=packages /app/web/ .
 COPY . .
 
-# Accept internal API URL from build args for SSR Docker communication
-ARG DIFY_INTERNAL_API_URL
-ENV DIFY_INTERNAL_API_URL=${DIFY_INTERNAL_API_URL}
-
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm build:docker
 
@@ -81,8 +77,6 @@ COPY --from=builder --chown=dify:dify /app/web/.next/standalone ./
 COPY --from=builder --chown=dify:dify /app/web/.next/static ./.next/static
 
 COPY --chown=dify:dify --chmod=755 docker/entrypoint.sh ./entrypoint.sh
-COPY --from=builder --chown=dify:dify /app/web/i18n ./i18n
-COPY --from=builder --chown=dify:dify /app/web/i18n-config ./i18n-config
 
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}

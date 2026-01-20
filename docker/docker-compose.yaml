@@ -12,7 +12,6 @@ x-shared-env: &shared-api-worker-env
   TRIGGER_URL: ${TRIGGER_URL:-http://localhost}
   APP_API_URL: ${APP_API_URL:-}
   APP_WEB_URL: ${APP_WEB_URL:-}
-  DIFY_INTERNAL_API_URL: ${DIFY_INTERNAL_API_URL:-http://api:5001}
   FILES_URL: ${FILES_URL:-}
   INTERNAL_FILES_URL: ${INTERNAL_FILES_URL:-}
   LANG: ${LANG:-C.UTF-8}
@@ -702,7 +701,7 @@ services:
         chown -R 1001:1001 /app/api/storage && touch "$${FLAG_FILE}"
         echo "Permissions initialized. Exiting."
     volumes:
-      - ./volumes/app/storage:/app/api/storage
+      - dify_app_storage:/app/api/storage
     restart: "no"
 
   # API service
