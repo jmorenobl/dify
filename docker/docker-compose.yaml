@@ -873,12 +873,7 @@ services:
       ENABLE_WEBSITE_JINAREADER: ${ENABLE_WEBSITE_JINAREADER:-true}
       ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
-    healthcheck:
-      # Use TCP check instead of HTTP to avoid triggering SSR which has issues on initial load
-      test: [ "CMD-SHELL", "nc -z localhost 3000 || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 30
+    # NOTE: No healthcheck - matches original Dify config. Healthcheck was triggering SSR which has issues.
     networks:
       - ssrf_proxy_network
       - default
