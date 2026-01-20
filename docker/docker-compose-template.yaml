@@ -188,7 +188,8 @@ services:
       ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      # Use TCP check instead of HTTP to avoid triggering SSR which has issues on initial load
+      test: [ "CMD-SHELL", "nc -z localhost 3000 || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 30
