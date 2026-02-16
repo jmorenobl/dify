@@ -403,8 +403,6 @@ services:
   # The Weaviate vector store.
   weaviate:
     image: semitechnologies/weaviate:1.27.0
-    profiles:
-      - weaviate
     restart: always
     volumes:
       # Mount the Weaviate data directory to the con tainer.
