@@ -987,7 +987,9 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=dokploy-network"
       - "traefik.http.routers.dify-plugin.rule=Host(`${DIFY_DOMAIN}`) && PathPrefix(`/e/`)"
-      - "traefik.http.routers.dify-plugin.entrypoints=web"
+      - "traefik.http.routers.dify-plugin.entrypoints=websecure"
+      - "traefik.http.routers.dify-plugin.tls=true"
+      - "traefik.http.routers.dify-plugin.tls.certresolver=letsencrypt"
       - "traefik.http.routers.dify-plugin.priority=100"
       - "traefik.http.services.dify-plugin.loadbalancer.server.port=5002"
 
