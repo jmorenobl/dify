@@ -841,7 +841,10 @@ services:
   # Frontend web application.
   # Uses official pre-built image with network alias for internal SSR routing
   web:
-    image: langgenius/dify-web:1.11.4
+    build:
+      context: ./custom-logo
+      args:
+        DIFY_WEB_VERSION: "1.11.4"
     restart: always
     labels:
       - "traefik.enable=true"
