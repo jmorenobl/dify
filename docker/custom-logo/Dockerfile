@@ -21,8 +21,9 @@ COPY icon-512x512.png /app/web/public/icon-512x512.png
 # Override manifest.json with custom name
 COPY manifest.json /app/web/public/manifest.json
 
-# Patch compiled JS/HTML to replace "Dify" title with "Operant"
-# Targets the string literal "Dify" in compiled Next.js output (client + server chunks)
+# Patch compiled JS/HTML to replace "Dify" with "Operant"
+# The compiled Next.js output uses template literals (`${prefix}Dify`), quoted strings,
+# and alt text — so we replace all occurrences of the word "Dify" in JS/HTML files.
 RUN find /app/web/.next -type f \( -name '*.js' -o -name '*.html' \) \
-    -exec sed -i 's/"Dify"/"Operant"/g' {} + 2>/dev/null || true && \
-    sed -i 's/>Dify</>Operant</g' /app/web/public/_offline.html 2>/dev/null || true
+    -exec sed -i 's/Dify/Operant/g' {} + 2>/dev/null || true && \
+    sed -i 's/Dify/Operant/g' /app/web/public/_offline.html 2>/dev/null || true
